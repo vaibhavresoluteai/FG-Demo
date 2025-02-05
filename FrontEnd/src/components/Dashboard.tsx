@@ -1,5 +1,6 @@
 import React from 'react'
 import { BarChart } from 'lucide-react'
+import WebSocketGraph from './insights/WebSocketGraph';
 
 function Dashboard() {
     const [crates, setcrates] = React.useState<string | null>();
@@ -37,6 +38,9 @@ function Dashboard() {
                 {totalCrateCount || "N/A"}
               </p>
             </div>
+          </div>
+          <div className='flex flex-col'>
+            <WebSocketGraph />
           </div>
         </div>
     </div>
