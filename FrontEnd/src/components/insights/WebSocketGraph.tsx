@@ -122,17 +122,17 @@ const WebSocketGraph: React.FC = () => {
   };
 
   return (
-    <div className="p-4 w-full flex flex-col items-center justify-center min-h-screen">
+    <div className="p-1 w-full flex flex-col items-center justify-center min-h-screen">
       <h2 className="text-xl font-semibold mb-4 text-center">Live Data Monitoring</h2>
-      <div className="w-[60%] flex flex-col justify-center items-center space-x-8">
+      <div className="w-[80%] flex  justify-center items-center space-x-8">
         {/* Bar Chart Container with Scroll */}
-        <div ref={barChartRef} className="max-w-2xl w-full overflow-x-auto whitespace-nowrap overflow-hidden">
-          <ApexCharts options={barChartOptions} series={barChartData} type="bar" height={500} width={800} />
+        <div ref={barChartRef} className="max-w-md w-full overflow-x-auto whitespace-nowrap overflow-hidden">
+          <ApexCharts options={barChartOptions} series={barChartData} type="bar" height={400} width={600} />
         </div>
 
         {/* Area Chart Container with Scroll */}
-        <div ref={areaChartRef} className="max-w-2xl w-full overflow-x-auto whitespace-nowrap overflow-hidden">
-          <ApexCharts options={lineChartOptions} series={chartData} type="area" height={500} width={800} />
+        <div ref={areaChartRef} className="max-w-md w-full overflow-x-auto whitespace-nowrap overflow-hidden">
+          <ApexCharts options={lineChartOptions} series={chartData} type="area" height={400} width={600} />
         </div>
       </div>
     </div>
