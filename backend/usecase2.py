@@ -1,12 +1,10 @@
 import numpy as np
-import uuid
 import datetime
 import cv2
-import pandas as pd
 import os
 import csv
 
-def process_video2(input_path): 
+def process_video2(input_path,frame_interval : int =5): 
     csv_file = "milk_spillage.csv"
 
     if os.path.exists(csv_file):
@@ -16,7 +14,15 @@ def process_video2(input_path):
         writer = csv.writer(f)
         writer.writerow(["Frame", "Timestamp", "Approx. Wastage Percentage", "Detection Start Time", "Total Detection Time", "Alert Status"])
 
-    output_video = f"output_videos_2/output_{uuid.uuid4().hex}.mp4"
+    output_video = f"output_videos_2/output_video2.mp4"
+
+    # Check if the output video already exists, if yes, delete it
+    if os.path.exists(output_video):
+        os.remove(output_video)
+    
+    output_frame_dir = "output_frame"
+    os.makedirs(output_frame_dir, exist_ok=True)
+
     cap = cv2.VideoCapture(input_path)
 
     fps = int(cap.get(cv2.CAP_PROP_FPS)) if cap.get(cv2.CAP_PROP_FPS) > 0 else 30
@@ -98,6 +104,9 @@ def process_video2(input_path):
                     detection_start_time_str = ""
 
                 out.write(combined_frame_resized)
+                if frame_number % frame_interval == 0:
+                    frame_path = os.path.join(output_frame_dir, f"frame_{frame_number}.jpg")
+                    cv2.imwrite(frame_path, frame)
 
                 # **Live Saving Data to CSV**
                 with open(csv_file, "a", newline="") as f:
@@ -113,4 +122,4 @@ def process_video2(input_path):
             out.release()
             cv2.destroyAllWindows()
 
-        return output_video, white_percentage, detection_start_time_str, total_detection_time
+        return white_percentage, detection_start_time_str, total_detection_time

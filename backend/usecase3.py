@@ -1,12 +1,11 @@
 import cv2
 import numpy as np
 from datetime import datetime
-import uuid
 from ultralytics import YOLO
 import csv
 import os
 
-def process_video3(input_path):
+def process_video3(input_path,frame_interval : int =5):
     csv_file = "milk_wastage.csv"
 
     # Remove existing CSV file
@@ -32,7 +31,14 @@ def process_video3(input_path):
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     # Output video path
-    out_video = f"output_videos_3/output_{uuid.uuid4().hex}.mp4"
+    out_video = f"output_videos_3/output_video3.mp4"
+    # Check if the output video already exists, if yes, delete it
+    if os.path.exists(out_video):
+        os.remove(out_video)
+
+    output_frame_dir = "output_frame"
+    os.makedirs(output_frame_dir, exist_ok=True)
+
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(out_video, fourcc, fps, (frame_width, frame_height))
 
@@ -103,6 +109,9 @@ def process_video3(input_path):
 
             # Save frame to video
             out.write(frame)
+            if frame_number % frame_interval == 0:
+                frame_path = os.path.join(output_frame_dir, f"frame_{frame_number}.jpg")
+                cv2.imwrite(frame_path, frame)
 
             # Save data to CSV
             with open(csv_file, "a", newline="") as f:
@@ -118,4 +127,4 @@ def process_video3(input_path):
         out.release()
         cv2.destroyAllWindows()
 
-    return out_video, white_percentage, detection_start_time_str
+    return white_percentage, detection_start_time_str

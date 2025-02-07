@@ -283,7 +283,7 @@ async def process_uploaded_video(rule: str = Form(...), file: UploadFile = File(
     """
     if rule not in rules_mapping:
         raise HTTPException(status_code=400, detail="Invalid rule selected.")
-
+    
     input_video_path = file.filename
     processing_function = rules_mapping[rule]  # Get the function based on rule
     
@@ -295,10 +295,12 @@ async def process_uploaded_video(rule: str = Form(...), file: UploadFile = File(
 
     # Handling different return structures for different processes
     if rule == "Crate Count":
+        print("CrateCount Running")
         output_video_path, roi_box_count, total_crates = result
         return {"output_path": output_video_path, "roi_box_count": roi_box_count, "Total_crates": total_crates}
     
     elif rule == "Milk Spillage":
+        print("Milk Spillage Running")
         output_video_path, white_percentage, detection_start_time_str, total_detection_time = result
         return {
             "output_path": output_video_path,
@@ -308,6 +310,7 @@ async def process_uploaded_video(rule: str = Form(...), file: UploadFile = File(
         }
     
     elif rule == "Milk Wastage":
+        print("MilkWastage Running")
         output_video_path, white_percentage, detection_start_time_str = result
         return {
             "output_path": output_video_path,
@@ -316,6 +319,7 @@ async def process_uploaded_video(rule: str = Form(...), file: UploadFile = File(
         }
     
     elif rule == "Total Crate Count":
+        print("TotalCrateCount Running")
         output_video_path, box_count = result
         return {"output_path": output_video_path, "box_count": box_count}
     

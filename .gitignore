@@ -31,3 +31,4 @@ uploaded_videos
 myenv
 __pycache__
 *.csv
+output_frame

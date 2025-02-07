@@ -5,6 +5,8 @@ import { processingRulesApi } from "../api/processingRules";
 import { outputConfigurationsApi } from "../api/outputConfigurations";
 import { areaCoordinatesApi } from "../api/areaCoordinates";
 import { crateVideoProcessingApi } from "../api/crateVideoProcessing";
+import responseBuilder from "../api/responseReducer";
+import ruleSelecter from "../api/selectedRuleSlice"
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +16,8 @@ export const store = configureStore({
     [outputConfigurationsApi.reducerPath]: outputConfigurationsApi.reducer,
     [areaCoordinatesApi.reducerPath]: areaCoordinatesApi.reducer,
     [crateVideoProcessingApi.reducerPath]: crateVideoProcessingApi.reducer,
+    response: responseBuilder,
+    rule: ruleSelecter
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(

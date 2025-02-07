@@ -1,8 +1,7 @@
 from ultralytics import YOLO
-import cv2, uuid, datetime
+import cv2,datetime
 import numpy as np
 import matplotlib.path as mplPath
-import pandas as pd
 import os
 import csv
 
@@ -25,7 +24,7 @@ def detect_box(results):
         rois.append([xmin, ymin, xmax, ymax, class_id, score, tracker_id])
     return rois
 
-def process_video4(input_path):
+def process_video4(input_path,frame_interval : int =5):
     csv_file = "total_crates_count.csv"
 
     # Initialize CSV with headers if it doesn't exist
@@ -42,7 +41,13 @@ def process_video4(input_path):
     section1_roi_poly = np.array(section1_roi)
     section1_roi_poly_path = mplPath.Path(section1_roi_poly)
 
-    out_video = f"output_videos_4/output_{uuid.uuid4().hex}.mp4"
+    out_video = f"output_videos_4/output_video4.mp4"
+    # Check if the output video already exists, if yes, delete it
+    if os.path.exists(out_video):
+        os.remove(out_video)
+    output_frame_dir = "output_frame"
+    os.makedirs(output_frame_dir, exist_ok=True)
+    
     cap = cv2.VideoCapture(input_path)
     
     original_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -89,6 +94,9 @@ def process_video4(input_path):
         cv2.polylines(frame, pts=[section1_roi_poly], isClosed=True, color=(255, 102, 102), thickness=2)  
 
         out.write(frame)
+        if frame_number % frame_interval == 0:
+            frame_path = os.path.join(output_frame_dir, f"frame_{frame_number}.jpg")
+            cv2.imwrite(frame_path, frame)
 
         # **Live Saving Data to CSV**
         with open(csv_file, "a", newline="") as f:
@@ -100,4 +108,6 @@ def process_video4(input_path):
     out.release()
     cv2.destroyAllWindows()
 
-    return out_video, box_count
+    return box_count
+
+

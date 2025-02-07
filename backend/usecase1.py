@@ -1,8 +1,5 @@
 from ultralytics import YOLO
 import cv2
-import uuid
-import numpy as np
-import pandas as pd
 import os
 import datetime
 import csv
@@ -26,24 +23,30 @@ def detect_box(results):
         rois.append([xmin, ymin, xmax, ymax, class_id, score, tracker_id])
     return rois
 
-def process_video1(input_path): 
+def process_video1(input_path,frame_interval: int = 5): 
     csv_file = "crate_count.csv"
     if os.path.exists(csv_file):
         os.remove(csv_file)
-    # Initialize CSV with headers if it doesn't exist
+    
     with open(csv_file, "w") as f:
         writer = csv.writer(f)
         writer.writerow(["Frame","Timestamp","Crates","Crates_count"])  
 
     model = YOLO('crate_detection.pt')  
-    output_video = f"output_videos_1/output_{uuid.uuid4().hex}.mp4"
+    output_video = f"output_videos_1/output_video1.mp4"
 
-    unique_tracker_ids = set()  # Set to track unique IDs
-    tracker_centroids_in_roi = set()  # Set to track centroids that entered the ROI
+    if os.path.exists(output_video):
+        os.remove(output_video)
+
+    output_frame_dir = "output_frame"
+    os.makedirs(output_frame_dir, exist_ok=True)  # Ensure folder exists
+
+    unique_tracker_ids = set()
+    tracker_centroids_in_roi = set()
     roi_box_count = 0
 
-    roi_start = (1034, 448)  # Top-left corner of the ROI (x, y)
-    roi_end = (1736, 1318)  # Bottom-right corner of the ROI (x, y)
+    roi_start = (1034, 448)
+    roi_end = (1736, 1318)
     
     cap = cv2.VideoCapture(input_path)
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -52,15 +55,15 @@ def process_video1(input_path):
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_video, fourcc, fps, (frame_width, frame_height))
 
-    frame_number = 0  # Frame counter
+    frame_number = 0  
 
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
         
-        frame_number += 1  # Increment frame counter
-        timestamp = datetime.datetime.now().strftime("%H:%M:%S")  # Approximate timestamp
+        frame_number += 1  
+        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
 
         results = model.track(frame, persist=True, conf=0.85, iou=0.5, agnostic_nms=True)
         rois = detect_box(results)
@@ -73,7 +76,7 @@ def process_video1(input_path):
             if tracker_id is not None and tracker_id not in unique_tracker_ids:
                 if (x1 >= roi_start[0] and y1 >= roi_start[1] and x2 <= roi_end[0] and y2 <= roi_end[1]):
                     if (centroid_x, centroid_y) not in tracker_centroids_in_roi:
-                        roi_box_count += 1  # Increment unique crate count
+                        roi_box_count += 1  
                         tracker_centroids_in_roi.add((centroid_x, centroid_y))  
                         unique_tracker_ids.add(tracker_id)  
 
@@ -88,16 +91,21 @@ def process_video1(input_path):
 
         cv2.rectangle(frame, roi_start, roi_end, (255, 0, 255), 2)
         
-        crates_count = roi_box_count * 10  # Calculate total crates count
+        crates_count = roi_box_count * 10  
 
-        # Append live data to CSV file
         with open(csv_file, "a") as f:
             f.write(f"{frame_number},{timestamp},{roi_box_count},{crates_count}\n")
 
         out.write(frame)
 
+        # Save every 5th frame
+        if frame_number % frame_interval == 0:
+            frame_path = os.path.join(output_frame_dir, f"frame_{frame_number}.jpg")
+            cv2.imwrite(frame_path, frame)
+
     cap.release()
     out.release()
     cv2.destroyAllWindows()
 
-    return output_video, roi_box_count, roi_box_count * 10
+    return roi_box_count, roi_box_count * 10
+

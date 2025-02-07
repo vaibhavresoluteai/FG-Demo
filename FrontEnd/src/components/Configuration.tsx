@@ -26,6 +26,10 @@ import { ProcessingRulesModel } from "../store/models/ProcessingRules";
 // import Backdrop from "./common/Backdrop";
 // import PageHeader from "./common/PageHeader";
 import MediaFrameSelector from "./insights/MediaFrameSelector";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../store/middleware";
+import { setCrateCountResponse, setMilkSpillageResponse, setMilkWastageResponse, setTotalCrateCountResponse } from "../store/api/responseReducer";
+import { setSelectedRule } from "../store/api/selectedRuleSlice";
 
 const Configuration = () => {
   // const [selectedCamera, setSelectedCamera] = React.useState(
@@ -63,6 +67,7 @@ const Configuration = () => {
   const [output, setOutput] = React.useState<string[]>(
     outputObject.current_output_configurations
   );
+  const dispatch = useDispatch<AppDispatch>();
 
   if (ruleRows.length > 0 && rules.length === 0) {
     const newParams = ruleRows.reduce<Record<string, boolean>>(
@@ -84,26 +89,62 @@ const Configuration = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setSelectedFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+        console.log("Selected file:", file); // Log file details
+        setSelectedFile(file);
+
+        const url = URL.createObjectURL(file);
+        console.log("Generated Object URL:", url); // Log preview URL
+        setPreviewUrl(url);
     }
-  };
+};
 
   const handleSubmit = () => {
     const formData = new FormData();
     if (selectedFile) formData.append("file", selectedFile);
     
     // Assuming the user selects a single rule, you can append the selected rule
-    const selectedRule = rules.find(rule => rule.enabled)?.rule || '';  // or fetch from a state if applicable
+    
+    let selectedRule = Object.keys(params).find(key => params[key]);
+    console.log(params);
     if (selectedRule) {
+      dispatch(setSelectedRule(selectedRule));
       formData.append("rule", selectedRule);  // append the rule as a string
     }
-    console.log(selectedRule);
+    console.log(formData);
+    
   
     createCrateMutation({ payload: formData }).then((res) => {
       console.log(res);
       if (res.data) {
+        if (selectedRule === "Crate Count") {
+          const response = {
+            roiBoxCount: res.data?.["roi_box_count"],
+            totalCrates: res.data?.["Total_crates"]
+          };
+          console.log("Processed Response:", response);
+          dispatch(setCrateCountResponse(response));
+        }else if(selectedRule === "Milk Spillage"){
+          const response = {
+            whitePercentage: res.data?.["white_percentage"],
+            detectionStartTime: res.data?.["detection_start_time"],
+            totalDetectionTime: res.data?.["total_detection_time"]
+          }
+          console.log("Processed Response:", response);
+          dispatch(setMilkSpillageResponse(response));
+        }else if(selectedRule === "Milk Wastage"){
+          const response = {
+            whitePercentage: res.data?.["white_percentage"],
+            detectionStartTime: res.data?.["detection_start_time"],
+          }
+          console.log("Processed Response:", response);
+          dispatch(setMilkWastageResponse(response));
+        }else if(selectedRule === "Total Crate Count"){
+          const response = {
+            boxCount: res.data?.["box_count"],
+          }
+          console.log("Processed Response:", response);
+          dispatch(setTotalCrateCountResponse(response));
+        }
         alert("Video processed successfully!");
       } else if (res.error) {
         alert("Failed to upload video.");
@@ -171,7 +212,7 @@ const Configuration = () => {
               <div className="aspect-[16/9] bg-gray-100 rounded-lg flex items-center justify-center overflow">
                 <div className="flex flex-col justify-center items-center w-full max-w-md">
                   <h2 className="text-xl font-semibold mb-2 self-start">Video Preview:</h2>
-                  <video src={previewUrl} controls className="h-auto w-full object-contain border rounded-lg" />
+                  <video key={previewUrl} src={previewUrl} controls className="h-auto w-full object-contain border rounded-lg" />
                 </div>
               </div>
             </div>}
