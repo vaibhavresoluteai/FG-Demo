@@ -73,7 +73,7 @@ const Configuration = () => {
     const newParams = ruleRows.reduce<Record<string, boolean>>(
       (acc, ruleObj) => {
         if (ruleObj.enabled) {
-          acc[ruleObj.rule] = true;
+          acc[ruleObj.rule] = false;
         }
         return acc;
       },
@@ -170,12 +170,8 @@ const Configuration = () => {
   };
 
   const toggleRule = (rule: string) => {
-    setParams((params) => ({ ...params, [rule]: !params[rule] }));
+    setParams((params) => ({ [rule]: !params[rule] }));
   };
-
-  React.useEffect(() => {
-    console.log("Hello");
-  }, []);
 
   return (
     <div className="p-6">
