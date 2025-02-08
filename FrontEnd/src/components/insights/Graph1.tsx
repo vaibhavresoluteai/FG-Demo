@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import ApexCharts from 'react-apexcharts';
 
-const WebSocketGraph: React.FC = () => {
+const Graph1: React.FC = () => {
   const [chartData, setChartData] = useState([{ name: 'Crates Count', data: [] }]);
   const [barChartData, setBarChartData] = useState([{ name: 'Crates', data: [] }]);
   const [isConnected, setIsConnected] = useState(false);
@@ -127,17 +127,17 @@ const WebSocketGraph: React.FC = () => {
       <div className="w-[80%] flex  justify-center items-center space-x-8">
         {/* Bar Chart Container with Scroll */}
         <div ref={barChartRef} className="max-w-md w-full overflow-x-auto whitespace-nowrap overflow-hidden">
-          <ApexCharts options={barChartOptions} series={barChartData} type="bar" height={400} width={600} />
+          <ApexCharts options={barChartOptions} series={barChartData} type="bar" height={400} width={400} />
         </div>
 
         {/* Area Chart Container with Scroll */}
         <div ref={areaChartRef} className="max-w-md w-full overflow-x-auto whitespace-nowrap overflow-hidden">
-          <ApexCharts options={lineChartOptions} series={chartData} type="area" height={400} width={600} />
+          <ApexCharts options={lineChartOptions} series={chartData} type="area" height={400} width={400} />
         </div>
       </div>
     </div>
   );
 };
 
-export default WebSocketGraph;
+export default Graph1;
  

@@ -1,9 +1,13 @@
 import React from "react";
 import { BarChart } from "lucide-react";
-import WebSocketGraph from "./insights/WebSocketGraph";
+import Graph1 from "./insights/Graph1";
+import Graph2 from "./insights/Graph2";
+import Graph3 from "./insights/Graph3";
+import Graph4 from "./insights/Graph4";
 import { RootState } from "../store/middleware";
 import { useSelector } from "react-redux";
 import FrameViewer from "./insights/FrameViewer";
+
 
 function Dashboard() {
   const selectedRule = useSelector((state: RootState) => state.rule.rule);
@@ -61,7 +65,10 @@ function Dashboard() {
 
         {/* WebSocket Graph */}
         <div className="flex flex-col mt-6">
-          <WebSocketGraph />
+          {selectedRule === 'Crate Count' && <Graph1 />}
+          {selectedRule === 'Milk Spillage' && <Graph2 />}
+          {selectedRule === 'Milk Wastage' && <Graph3 />}
+          {selectedRule === 'Total Crate Count' && <Graph4 />}
         </div>
       </div>
     </div>

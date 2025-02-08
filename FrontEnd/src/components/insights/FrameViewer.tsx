@@ -24,7 +24,7 @@ const FrameViewer = () => {
       {latestImage ? (
         <img src={latestImage} alt="Latest Frame" style={{ width: "100%", height: "auto" }} />
       ) : (
-        <p>Waiting for images...</p>
+        <p>Loading...</p>
       )}
     </div>
   );

@@ -40,7 +40,7 @@ const Navbar = () => {
 
         <div className="flex justify-center gap-2">
           <MonitorPlay className="w-8 h-8 text-red-500" />
-          <span className="text-[24px] font-bold">FaceGenie - Data Analytics</span>
+          <span className="text-[24px] font-bold">FaceGenie - POC Demo</span>
         </div>
 
         {/* <div className="text-[30px] font-bold">Cam AI</div> */}

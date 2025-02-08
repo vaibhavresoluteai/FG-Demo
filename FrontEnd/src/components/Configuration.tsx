@@ -26,10 +26,12 @@ import { ProcessingRulesModel } from "../store/models/ProcessingRules";
 // import Backdrop from "./common/Backdrop";
 // import PageHeader from "./common/PageHeader";
 import MediaFrameSelector from "./insights/MediaFrameSelector";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../store/middleware";
 import { setCrateCountResponse, setMilkSpillageResponse, setMilkWastageResponse, setTotalCrateCountResponse } from "../store/api/responseReducer";
 import { setSelectedRule } from "../store/api/selectedRuleSlice";
+import { setConfigData, setFile, clearConfigData } from "../store/api/configurationData";
+import { RootState } from "../store/middleware";
 
 const Configuration = () => {
   // const [selectedCamera, setSelectedCamera] = React.useState(
@@ -57,9 +59,11 @@ const Configuration = () => {
   const { data: ruleRows = [], isLoading: rulesLoading } =
     useGetProcessingRulesQuery();
 
+  const savedConfigData = useSelector((state: RootState) => state.configuration.configData);
+  const savedFile = useSelector((state: RootState) => state.configuration.file);
   const [selectedModel, setSelectedModel] = React.useState(modelRows[0]?.name);
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = React.useState<string | undefined>(undefined);
+  const [previewUrl, setPreviewUrl] = React.useState<string | undefined>(savedFile || undefined);
   const [capturedFrame, setCapturedFrame] = React.useState<string | null>(null);
   const [rules, setRules] = React.useState<ProcessingRulesModel[]>([]);
   const [params, setParams] = React.useState<Record<string, boolean>>({});
@@ -67,22 +71,28 @@ const Configuration = () => {
   const [output, setOutput] = React.useState<string[]>(
     outputObject.current_output_configurations
   );
+  
+
+  React.useEffect(() => {
+    console.log(savedConfigData);
+  }, [savedConfigData]);
+
+  React.useEffect(() => {
+    console.log(savedFile);
+  }, [savedFile]);
+
   const dispatch = useDispatch<AppDispatch>();
 
   if (ruleRows.length > 0 && rules.length === 0) {
-    const newParams = ruleRows.reduce<Record<string, boolean>>(
-      (acc, ruleObj) => {
-        if (ruleObj.enabled) {
-          acc[ruleObj.rule] = false;
-        }
-        return acc;
-      },
-      {}
-    );
-
+    const newParams = ruleRows.reduce<Record<string, boolean>>((acc, ruleObj) => {
+      acc[ruleObj.rule] = savedConfigData?.rule === ruleObj.rule && ruleObj.enabled;
+      return acc;
+    }, {});
+  
     setParams(newParams);
     setRules(ruleRows);
-  };
+  }
+  
   
 
   // Handle file selection
@@ -95,6 +105,7 @@ const Configuration = () => {
         const url = URL.createObjectURL(file);
         console.log("Generated Object URL:", url); // Log preview URL
         setPreviewUrl(url);
+        dispatch(setFile(url));
     }
 };
 
@@ -171,6 +182,7 @@ const Configuration = () => {
 
   const toggleRule = (rule: string) => {
     setParams((params) => ({ [rule]: !params[rule] }));
+    dispatch(setConfigData({rule}));
   };
 
   return (
@@ -232,7 +244,10 @@ const Configuration = () => {
               <select
                 className="w-full border border-gray-300 rounded-lg p-2"
                 value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
+                onChange={(e) => {
+                  setSelectedModel(e.target.value)
+                  dispatch(setConfigData({selectedModel: e.target.value}))
+                }}
               >
                 {modelRows
                   .filter((model: DetectionModel) => model.active)
