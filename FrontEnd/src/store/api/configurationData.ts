@@ -3,11 +3,15 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 interface ConfigState{
     configData: {[key: string]: string | boolean | null} | null,
     file: string | null
+    fileName: string | null,
+    isVideoProcessed: boolean | null
 }
 
 const initialState: ConfigState = {
     configData: null,
-    file: null
+    file: null,
+    fileName: null,
+    isVideoProcessed: true
 }
 
 const configurationSlice = createSlice({
@@ -23,6 +27,12 @@ const configurationSlice = createSlice({
         setFile: (state, action: PayloadAction<string | null>) => {
             state.file = action.payload;
         },
+        setFileName: (state, action: PayloadAction<string | null>) => {
+            state.fileName = action.payload;
+        },
+        setIsVideoProcessed: (state, action: PayloadAction<boolean | null>) => {
+            state.isVideoProcessed = action.payload;
+        },
         clearConfigData: (state) => {
             state.configData = null;
             state.file = null;
@@ -30,5 +40,5 @@ const configurationSlice = createSlice({
     }
 });
 
-export const { setConfigData, setFile, clearConfigData } = configurationSlice.actions;
+export const { setConfigData, setFile, setFileName, setIsVideoProcessed, clearConfigData } = configurationSlice.actions;
 export default configurationSlice.reducer;

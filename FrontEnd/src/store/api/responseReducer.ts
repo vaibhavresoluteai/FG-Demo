@@ -49,6 +49,7 @@ const responseSlice = createSlice({
     setTotalCrateCountResponse: (state, action: PayloadAction<TotalCrateCount>) => {
       state.totalCrateCount = action.payload;
     },
+    resetResponses: () => initialState,
   },
 });
 
@@ -58,6 +59,7 @@ export const {
   setMilkSpillageResponse,
   setMilkWastageResponse,
   setTotalCrateCountResponse,
+  resetResponses
 } = responseSlice.actions;
 
 // ✅ Export Reducer

@@ -39,7 +39,7 @@ function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <InfoCard title="White Percentage" value={milkSpillage?.whitePercentage} color="text-red-600" />
             <InfoCard title="Detection Start Time" value={milkSpillage?.detectionStartTime} color="text-green-600" />
-            <InfoCard title="Total Detection Time" value={milkSpillage?.totalDetectionTime} color="text-red-600" />
+            <InfoCard title="Total Un-Attended Time" value={milkSpillage?.totalDetectionTime} color="text-red-600" />
           </div>
         )}
 

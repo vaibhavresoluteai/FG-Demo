@@ -28,9 +28,9 @@ import { ProcessingRulesModel } from "../store/models/ProcessingRules";
 import MediaFrameSelector from "./insights/MediaFrameSelector";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../store/middleware";
-import { setCrateCountResponse, setMilkSpillageResponse, setMilkWastageResponse, setTotalCrateCountResponse } from "../store/api/responseReducer";
+import { setCrateCountResponse, setMilkSpillageResponse, setMilkWastageResponse, setTotalCrateCountResponse, resetResponses } from "../store/api/responseReducer";
 import { setSelectedRule } from "../store/api/selectedRuleSlice";
-import { setConfigData, setFile, clearConfigData } from "../store/api/configurationData";
+import { setConfigData, setFile, setFileName, setIsVideoProcessed } from "../store/api/configurationData";
 import { RootState } from "../store/middleware";
 
 const Configuration = () => {
@@ -61,7 +61,9 @@ const Configuration = () => {
 
   const savedConfigData = useSelector((state: RootState) => state.configuration.configData);
   const savedFile = useSelector((state: RootState) => state.configuration.file);
-  const [selectedModel, setSelectedModel] = React.useState(modelRows[0]?.name);
+  const savedFileName = useSelector((state: RootState) => state.configuration.fileName);
+  const isVideoProcessed = useSelector((state: RootState) => state.configuration.isVideoProcessed);
+  const [selectedModel, setSelectedModel] = React.useState(savedConfigData?.selectedModel || modelRows[0]?.id);
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = React.useState<string | undefined>(savedFile || undefined);
   const [capturedFrame, setCapturedFrame] = React.useState<string | null>(null);
@@ -71,16 +73,6 @@ const Configuration = () => {
   const [output, setOutput] = React.useState<string[]>(
     outputObject.current_output_configurations
   );
-  
-
-  React.useEffect(() => {
-    console.log(savedConfigData);
-  }, [savedConfigData]);
-
-  React.useEffect(() => {
-    console.log(savedFile);
-  }, [savedFile]);
-
   const dispatch = useDispatch<AppDispatch>();
 
   if (ruleRows.length > 0 && rules.length === 0) {
@@ -92,77 +84,72 @@ const Configuration = () => {
     setParams(newParams);
     setRules(ruleRows);
   }
-  
-  
 
   // Handle file selection
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-        console.log("Selected file:", file); // Log file details
-        setSelectedFile(file);
+      console.log("Selected file:", file); // Log file details
+      setSelectedFile(file);
 
-        const url = URL.createObjectURL(file);
-        console.log("Generated Object URL:", url); // Log preview URL
-        setPreviewUrl(url);
-        dispatch(setFile(url));
+      const url = URL.createObjectURL(file);
+      const generatedFileName = `file_${new Date().getTime()}`;
+      console.log("Generated Object URL:", url);
+      setPreviewUrl(url);
+      dispatch(setFile(url))
+      dispatch(setFileName(generatedFileName));
     }
-};
+  };
 
   const handleSubmit = () => {
+    dispatch(resetResponses());
     const formData = new FormData();
     if (selectedFile) formData.append("file", selectedFile);
     
     // Assuming the user selects a single rule, you can append the selected rule
     
     let selectedRule = Object.keys(params).find(key => params[key]);
-    console.log(params);
     if (selectedRule) {
       dispatch(setSelectedRule(selectedRule));
       formData.append("rule", selectedRule);  // append the rule as a string
     }
-    console.log(formData);
-    
-  
+    dispatch(setIsVideoProcessed(false));
     createCrateMutation({ payload: formData }).then((res) => {
       console.log(res);
       if (res.data) {
+        dispatch(setIsVideoProcessed(true));
         if (selectedRule === "Crate Count") {
           const response = {
             roiBoxCount: res.data?.["roi_box_count"],
             totalCrates: res.data?.["Total_crates"]
           };
-          console.log("Processed Response:", response);
           dispatch(setCrateCountResponse(response));
         }else if(selectedRule === "Milk Spillage"){
           const response = {
-            whitePercentage: res.data?.["white_percentage"],
+            whitePercentage: res.data?.["white_percentage"].toFixed(6)*100,
             detectionStartTime: res.data?.["detection_start_time"],
             totalDetectionTime: res.data?.["total_detection_time"]
           }
-          console.log("Processed Response:", response);
           dispatch(setMilkSpillageResponse(response));
         }else if(selectedRule === "Milk Wastage"){
           const response = {
-            whitePercentage: res.data?.["white_percentage"],
+            whitePercentage: res.data?.["white_percentage"].toFixed(6)*100,
             detectionStartTime: res.data?.["detection_start_time"],
           }
-          console.log("Processed Response:", response);
           dispatch(setMilkWastageResponse(response));
         }else if(selectedRule === "Total Crate Count"){
           const response = {
             boxCount: res.data?.["box_count"],
           }
-          console.log("Processed Response:", response);
           dispatch(setTotalCrateCountResponse(response));
         }
         alert("Video processed successfully!");
       } else if (res.error) {
+        dispatch(setIsVideoProcessed(true));
         alert("Failed to upload video.");
       }
     });
-  };
-  
+  };  
 
   const handleSubmitOutputConfigurations = (
     newOutputConfigurations: string[]
@@ -181,8 +168,19 @@ const Configuration = () => {
   };
 
   const toggleRule = (rule: string) => {
-    setParams((params) => ({ [rule]: !params[rule] }));
-    dispatch(setConfigData({rule}));
+    setParams((params) => {
+      const newParams: Record<string, boolean> = {};
+  
+      // Set all rules to false
+      Object.keys(params).forEach((key) => {
+        newParams[key] = false;
+      });
+  
+      // Toggle only the selected rule
+      newParams[rule] = !params[rule];
+      return newParams;
+    });
+    dispatch(setConfigData({ rule }));
   };
 
   return (
@@ -210,6 +208,7 @@ const Configuration = () => {
               <input
                 type="file"
                 accept="image/*,video/*"
+                id="file"
                 className="w-full border border-gray-300 rounded-lg p-2"
                 onChange={handleFileChange}
               />
@@ -249,13 +248,13 @@ const Configuration = () => {
                   dispatch(setConfigData({selectedModel: e.target.value}))
                 }}
               >
-                {modelRows
-                  .filter((model: DetectionModel) => model.active)
-                  .map((model: DetectionModel) => (
+                {[modelRows[2], ...modelRows.filter((_, index) => index !== 2)]
+                  .filter((model): model is DetectionModel => model !== undefined && model.active)
+                  .map((model) => (
                     <option key={model.id} value={model.id}>
-                      {model.name} ({model.accuracy + " accuracy"})
+                      {model.name}
                     </option>
-                  ))}
+                ))}
               </select>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
@@ -375,12 +374,12 @@ const Configuration = () => {
           <div className="flex items-center justify-end">
             <div className="inline-block">
               <div
-                className={`flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg px-4 py-2 cursor-pointer ${
-                  createLoading ? "opacity-50 cursor-not-allowed" : ""
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 ${
+                  isVideoProcessed && !createLoading
+                    ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+                    : "bg-gray-400 text-gray-600 cursor-not-allowed opacity-50"
                 }`}
-                onClick={
-                  !createLoading ? handleSubmit : (e) => e.preventDefault()
-                }
+                onClick={isVideoProcessed && !createLoading ? handleSubmit : undefined}
               >
                 {createLoading ? (
                   <Loader />
