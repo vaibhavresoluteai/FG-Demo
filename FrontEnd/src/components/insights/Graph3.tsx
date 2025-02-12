@@ -1,7 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import ApexCharts from 'react-apexcharts';
+import { setAlertStatus } from '../../store/api/alertStatus';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../store/middleware';
 
 const Graph3: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const [chartData, setChartData] = useState<{ name: string; data: { x: number; y: number }[]; color?: string }[]>([
     { name: 'Approx. Wastage Percentage', data: [],color: '#FF0000' },
     { name: 'Frames', data: [] }
@@ -50,6 +54,12 @@ const Graph3: React.FC = () => {
           'Approx. Wastage Percentage': wastagePercentage,
           'Alert Status': alert
         } = parsedData.data;
+
+        if(parsedData.data["Alert Status"] === 'True'){
+          dispatch(setAlertStatus(true));
+        }else{
+          dispatch(setAlertStatus(false));
+        }
 
         const today = new Date();
         const timestampMillis = new Date(`${today.toISOString().split('T')[0]}T${Timestamp}`).getTime();

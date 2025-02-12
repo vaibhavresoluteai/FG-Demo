@@ -8,6 +8,7 @@ import { crateVideoProcessingApi } from "../api/crateVideoProcessing";
 import responseBuilder from "../api/responseReducer";
 import ruleSelecter from "../api/selectedRuleSlice"
 import configureData from "../api/configurationData"
+import alertStatus from '../api/alertStatus'
 
 export const store = configureStore({
   reducer: {
@@ -19,7 +20,8 @@ export const store = configureStore({
     [crateVideoProcessingApi.reducerPath]: crateVideoProcessingApi.reducer,
     response: responseBuilder,
     rule: ruleSelecter,
-    configuration: configureData
+    configuration: configureData,
+    alert: alertStatus
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(

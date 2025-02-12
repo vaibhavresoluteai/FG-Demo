@@ -15,6 +15,7 @@ function Dashboard() {
   const milkSpillage = useSelector((state: RootState) => state.response.milkSpillageResponse);
   const milkWastage = useSelector((state: RootState) => state.response.milkWastageResponse);
   const totalCrateCount = useSelector((state: RootState) => state.response.totalCrateCount);
+  const alertStatus = useSelector((state: RootState) => state.alert.alert);
 
   return (
     <div className="p-6">
@@ -40,6 +41,7 @@ function Dashboard() {
             <InfoCard title="Wastage Percentage" value={milkSpillage?.whitePercentage} color="text-red-600" />
             <InfoCard title="Wastage Start Time" value={milkSpillage?.detectionStartTime} color="text-green-600" />
             <InfoCard title="Total Un-Attended Time" value={milkSpillage?.totalDetectionTime} color="text-red-600" />
+            <InfoCard title="Alert Status" value={alertStatus ? "On" : "Off"} color={alertStatus ? "text-green-600":"text-red-600"} />
           </div>
         )}
 
@@ -48,6 +50,7 @@ function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <InfoCard title="Wastage Percentage" value={milkWastage?.whitePercentage} color="text-red-600" />
             <InfoCard title="Wastage Start Time" value={milkWastage?.detectionStartTime} color="text-green-600" />
+            <InfoCard title="Alert Status" value={alertStatus ? "On" : "Off"} color={alertStatus ? "text-green-600":"text-red-600"} />
           </div>
         )}
 

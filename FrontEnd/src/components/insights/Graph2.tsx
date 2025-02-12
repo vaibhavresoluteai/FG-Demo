@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import ApexCharts from 'react-apexcharts';
+import { setAlertStatus } from '../../store/api/alertStatus';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../store/middleware';
 
 const MAX_DATA_POINTS = 50;
 type ChartDataType = {
@@ -16,6 +19,7 @@ type AlertDataType = {
 };
 
 const Graph2: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const [chartData, setChartData] = useState<ChartDataType[]>([
     { name: 'Total Detection Time', type: 'line', data: [], color: '#FF7F7F' }, // Light Red
     { name: 'Approx. Wastage Percentage', type: 'line', data: [], color: '#FF0000' }, // Dark Red
@@ -54,6 +58,12 @@ const Graph2: React.FC = () => {
         if (!parsedData?.data) return console.error("Invalid data format:", parsedData);
 
         const { Timestamp, 'Approx. Wastage Percentage': wastagePercentage, 'Total Detection Time': totalDetectionTime, 'Alert Status': alert } = parsedData.data;
+
+        if(parsedData.data["Alert Status"] === 'True'){
+          dispatch(setAlertStatus(true));
+        }else{
+          dispatch(setAlertStatus(false));
+        }
 
         const today = new Date();
         const timestampMillis = new Date(`${today.toISOString().split('T')[0]}T${Timestamp}`).getTime();
