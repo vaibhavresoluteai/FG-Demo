@@ -29,7 +29,7 @@ function Dashboard() {
         {/* Crate Count */}
         {selectedRule === "Crate Count" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <InfoCard title="ROI Box Count" value={crateCount?.roiBoxCount} color="text-red-600" />
+            <InfoCard title="Stack Count" value={crateCount?.roiBoxCount} color="text-red-600" />
             <InfoCard title="Crates Count" value={crateCount?.totalCrates} color="text-green-600" />
           </div>
         )}
@@ -37,8 +37,8 @@ function Dashboard() {
         {/* Milk Spillage */}
         {selectedRule === "Milk Spillage" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <InfoCard title="White Percentage" value={milkSpillage?.whitePercentage} color="text-red-600" />
-            <InfoCard title="Detection Start Time" value={milkSpillage?.detectionStartTime} color="text-green-600" />
+            <InfoCard title="Wastage Percentage" value={milkSpillage?.whitePercentage} color="text-red-600" />
+            <InfoCard title="Wastage Start Time" value={milkSpillage?.detectionStartTime} color="text-green-600" />
             <InfoCard title="Total Un-Attended Time" value={milkSpillage?.totalDetectionTime} color="text-red-600" />
           </div>
         )}
@@ -46,30 +46,33 @@ function Dashboard() {
         {/* Milk Wastage */}
         {selectedRule === "Milk Wastage" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <InfoCard title="White Percentage" value={milkWastage?.whitePercentage} color="text-red-600" />
-            <InfoCard title="Detection Start Time" value={milkWastage?.detectionStartTime} color="text-green-600" />
+            <InfoCard title="Wastage Percentage" value={milkWastage?.whitePercentage} color="text-red-600" />
+            <InfoCard title="Wastage Start Time" value={milkWastage?.detectionStartTime} color="text-green-600" />
           </div>
         )}
 
-        {/* Total Crate Count */}
-        {selectedRule === "Total Crate Count" && (
+        {/* Conveyor Belt Crate Count */}
+        {selectedRule === "Conveyor Belt Crate Count" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <InfoCard title="Crates Count" value={totalCrateCount?.boxCount} color="text-red-600" />
           </div>
         )}
 
-        {/* Frame Viewer */}
-        <div className="m-12">
-          <FrameViewer />
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-2 p-2">
+          {/* Frame Viewer */}
+          <div className="w-full h-auto lg:w-3/4 p-2">
+            <FrameViewer />
+          </div>
+
+          {/* WebSocket Graph */}
+          <div className="w-full lg:w-1/2 flex flex-col gap-2">
+            {selectedRule === 'Crate Count' && <Graph1 />}
+            {selectedRule === 'Milk Spillage' && <Graph2 />}
+            {selectedRule === 'Milk Wastage' && <Graph3 />}
+            {selectedRule === 'Conveyor Belt Crate Count' && <Graph4 />}
+          </div>
         </div>
 
-        {/* WebSocket Graph */}
-        <div className="flex flex-col mt-6">
-          {selectedRule === 'Crate Count' && <Graph1 />}
-          {selectedRule === 'Milk Spillage' && <Graph2 />}
-          {selectedRule === 'Milk Wastage' && <Graph3 />}
-          {selectedRule === 'Total Crate Count' && <Graph4 />}
-        </div>
       </div>
     </div>
   );

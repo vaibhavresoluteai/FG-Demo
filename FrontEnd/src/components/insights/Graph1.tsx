@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import ApexCharts from 'react-apexcharts';
+import { ApexOptions } from 'apexcharts';
 
 const WebSocketGraph: React.FC = () => {
-  const [chartData, setChartData] = useState([{ name: 'Crates Count', data: [] }]);
-  const [barChartData, setBarChartData] = useState([{ name: 'Crates', data: [] }]);
-  const [maxFrame, setMaxFrame] = useState(500); // Extend dynamically
+  const [chartData, setChartData] = useState<{ name: string; data: { x: number; y: number }[] }[]>([{ name: 'Crates Count', data: [] }]);
+  const [barChartData, setBarChartData] = useState<{ name: string; data: { x: number; y: number }[] }[]>([{ name: 'Crates', data: [] }]);
+  const [maxFrame, setMaxFrame] = useState<number>(500); // Extend dynamically
 
   const lastCrateCount = useRef<number | null>(null);
   const lastCrates = useRef<number | null>(null);
@@ -54,7 +55,7 @@ const WebSocketGraph: React.FC = () => {
     }
   };
 
-  const commonOptions = {
+  const commonOptions: ApexOptions = {
     chart: {
       zoom: { enabled: true, type: 'x', autoScaleYaxis: false },
       toolbar: { autoSelected: 'zoom', tools: { pan: true, reset: true } },
@@ -62,9 +63,9 @@ const WebSocketGraph: React.FC = () => {
     tooltip: { enabled: true },
   };
 
-  const lineChartOptions = {
+  const lineChartOptions: ApexOptions = {
     ...commonOptions,
-    chart: { ...commonOptions.chart, id: 'live-line-chart', type: 'area' },
+    chart: { ...commonOptions.chart, id: 'live-line-chart', type: "area" },
     xaxis: { type: 'numeric', title: { text: 'Frame Number' } },
     yaxis: { title: { text: 'Crates Count' } },
     stroke: { curve: 'smooth' },
@@ -72,9 +73,9 @@ const WebSocketGraph: React.FC = () => {
     colors: ['#FF0000'],
   };
 
-  const allFramesChartOptions = {
+  const allFramesChartOptions: ApexOptions = {
     ...commonOptions,
-    chart: { ...commonOptions.chart, id: 'all-frames-chart', type: 'bar' },
+    chart: { ...commonOptions.chart, id: 'all-frames-chart', type: "bar" },
     xaxis: {
       type: 'numeric',
       title: { text: 'Frame Number' },
@@ -82,7 +83,10 @@ const WebSocketGraph: React.FC = () => {
       min: 0,
       max: maxFrame,
       labels: {
-        formatter: (value: number) => (value % 100 === 0 ? value.toString() : ''), // ✅ Show labels at 0,100,200...
+        formatter: (value: string) => {
+          const numValue = Number(value);
+          return numValue % 100 === 0 ? numValue.toString() : "";
+        }, // ✅ Show labels at 0,100,200...
       },
     },
     yaxis: { title: { text: 'Crates' } },
@@ -99,12 +103,12 @@ const WebSocketGraph: React.FC = () => {
     <div className="p-1 w-full flex flex-col items-center justify-center min-h-screen">
       <h2 className="text-xl font-semibold mb-4 text-center">Live Data Monitoring</h2>
 
-      <div className="w-[80%] flex items-center space-y-6">
+      <div className="w-[80%] flex flex-col items-center space-y-6">
         {/* Bar Chart (Detected Crates) */}
-        <ApexCharts options={allFramesChartOptions} series={barChartData} type="bar" height={400} width={400} />
+        <ApexCharts options={allFramesChartOptions} series={barChartData} type="bar" height={300} width={300} />
 
         {/* Line Chart (Crates Count over time) */}
-        <ApexCharts options={lineChartOptions} series={chartData} type="area" height={400} width={400} />
+        <ApexCharts options={lineChartOptions} series={chartData} type="area" height={300} width={300} />
       </div>
     </div>
   );

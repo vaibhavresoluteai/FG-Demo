@@ -38,9 +38,9 @@ const Navbar = () => {
           </h1>
         </div>
 
-        <div className="flex justify-center gap-2">
-          <MonitorPlay className="w-8 h-8 text-red-500" />
-          <span className="text-[24px] font-bold">FaceGenie - POC Demo</span>
+        <div className="flex justify-center gap-1 lg:gap-2">
+          <MonitorPlay className="hidden lg:block w-8 h-8 text-red-500" />
+          <span className="text-[16px] lg:text-[24px] font-bold">FaceGenie - Object Detection and Count Demo</span>
         </div>
 
         {/* <div className="text-[30px] font-bold">Cam AI</div> */}

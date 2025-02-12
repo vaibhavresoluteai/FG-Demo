@@ -63,7 +63,7 @@ const Configuration = () => {
   const savedFile = useSelector((state: RootState) => state.configuration.file);
   const savedFileName = useSelector((state: RootState) => state.configuration.fileName);
   const isVideoProcessed = useSelector((state: RootState) => state.configuration.isVideoProcessed);
-  const [selectedModel, setSelectedModel] = React.useState(savedConfigData?.selectedModel || modelRows[0]?.id);
+  const [selectedModel, setSelectedModel] = React.useState<any>(savedConfigData?.selectedModel || modelRows[0]?.id);
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = React.useState<string | undefined>(savedFile || undefined);
   const [capturedFrame, setCapturedFrame] = React.useState<string | null>(null);
@@ -137,7 +137,7 @@ const Configuration = () => {
             detectionStartTime: res.data?.["detection_start_time"],
           }
           dispatch(setMilkWastageResponse(response));
-        }else if(selectedRule === "Total Crate Count"){
+        }else if(selectedRule === "Conveyor Belt Crate Count"){
           const response = {
             boxCount: res.data?.["box_count"],
           }
@@ -214,7 +214,7 @@ const Configuration = () => {
               />
             </div>}
 
-            {previewUrl && <div>
+            {/* {previewUrl && <div>
               <h2>Preview Area</h2>
               <div className="aspect-[16/9] bg-gray-100 rounded-lg flex items-center justify-center overflow">
                 <div className="flex flex-col justify-center items-center w-full max-w-md">
@@ -222,7 +222,7 @@ const Configuration = () => {
                   <video key={previewUrl} src={previewUrl} controls className="h-auto w-full object-contain border rounded-lg" />
                 </div>
               </div>
-            </div>}
+            </div>} */}
             
           </div>
         </div>

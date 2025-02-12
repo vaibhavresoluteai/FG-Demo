@@ -36,7 +36,7 @@ rules = [
     },
     {
         "id": "4",
-        "rule": "Total Crate Count",
+        "rule": "Conveyor Belt Crate Count",
         #"type": "NONE",
         "enabled": True,
     }
@@ -356,7 +356,7 @@ rules_mapping = {
     "Crate Count": process_video1,
     "Milk Spillage": process_video2,
     "Milk Wastage": process_video3,
-    "Total Crate Count": process_video4
+    "Conveyor Belt Crate Count": process_video4
 }
  
 UPLOAD_DIR = "uploaded_videos"
@@ -404,7 +404,7 @@ async def process_uploaded_video(rule: str = Form(...), file: UploadFile = File(
             "detection_start_time": detection_start_time_str
         }
    
-    elif rule == "Total Crate Count":
+    elif rule == "Conveyor Belt Crate Count":
         box_count = result
         return {"box_count": box_count}
    

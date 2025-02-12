@@ -1,9 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
 import ApexCharts from 'react-apexcharts';
+import { ApexOptions } from 'apexcharts';
+
+type ChartDataType = {
+  name: string;
+  data: { x: number; y: number }[]; // Define the expected structure of `data`
+};
 
 const Graph4: React.FC = () => {
-  const [chartData, setChartData] = useState([{ name: 'Total Crate Count', data: [] }]);
-  const [maxFrame, setMaxFrame] = useState(500);
+  const [chartData, setChartData] = useState<ChartDataType[]>([{ name: 'Total Crate Count', data: [] }]);
+  const [maxFrame, setMaxFrame] = useState<number>(500);
   const lastFrame = useRef<number | null>(null);
   const lastCrateCount = useRef<number | null>(null);
   const ws = useRef<WebSocket | null>(null);
@@ -38,7 +44,7 @@ const Graph4: React.FC = () => {
     }
   };
 
-  const commonOptions = {
+  const commonOptions: ApexOptions = {
     chart: {
       zoom: { enabled: true, type: 'x', autoScaleYaxis: false },
       toolbar: { autoSelected: 'zoom', tools: { pan: true, reset: true } },
@@ -46,7 +52,7 @@ const Graph4: React.FC = () => {
     tooltip: { enabled: true },
   };
 
-  const chartOptions = {
+  const chartOptions: ApexOptions = {
     ...commonOptions,
     chart: { ...commonOptions.chart, id: 'live-line-chart', type: 'area' },
     xaxis: {
@@ -56,7 +62,10 @@ const Graph4: React.FC = () => {
       min: 0,
       max: maxFrame,
       labels: {
-        formatter: (value: number) => (value % 100 === 0 ? value.toString() : ''),
+        formatter: (value: string) => {
+          const numValue = Number(value);
+          return numValue % 100 === 0 ? numValue.toString() : '';
+        },
       },
     },
     yaxis: { title: { text: 'Crates Count' } },
@@ -69,7 +78,13 @@ const Graph4: React.FC = () => {
     <div className="p-4 w-full flex flex-col items-center justify-center min-h-screen">
       <h2 className="text-xl font-semibold mb-4 text-center">Live Crate Count Monitoring</h2>
       <div>
-        <ApexCharts options={chartOptions} series={chartData} type="area" height={500} width={800} />
+        <ApexCharts
+         options={chartOptions} 
+         series={chartData} 
+         type="area" 
+         height={350} 
+         width={350} 
+        />
       </div>
     </div>
   );

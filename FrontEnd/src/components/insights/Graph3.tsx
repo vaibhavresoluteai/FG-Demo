@@ -2,17 +2,18 @@ import React, { useEffect, useState, useRef } from 'react';
 import ApexCharts from 'react-apexcharts';
 
 const Graph3: React.FC = () => {
-  const [chartData, setChartData] = useState([
+  const [chartData, setChartData] = useState<{ name: string; data: { x: number; y: number }[]; color?: string }[]>([
     { name: 'Approx. Wastage Percentage', data: [],color: '#FF0000' },
     { name: 'Frames', data: [] }
   ]);
-  const [chartData1, setChartData1] = useState([
+  const [chartData1, setChartData1] = useState<{ name: string; data: { x: number; y: number }[]; color?: string }[]>([
     { name: 'Alert Status', data: [], color: '#FF0000' }
   ]);
 
   const [isConnected, setIsConnected] = useState(false);
   const ws = useRef<WebSocket | null>(null);
-  const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
 
   const connectWebSocket = () => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) return;
@@ -88,7 +89,7 @@ const Graph3: React.FC = () => {
     <div className="p-4 w-full flex flex-col items-center justify-center min-h-screen">
       <h2 className="text-xl font-semibold mb-4 text-center">Live Data Monitoring</h2>
       
-      <div className="w-[70%] flex justify-center items-center space-x-8">
+      <div className="w-3/4 flex flex-col justify-center items-center space-x-8">
         <div className="max-w-3xl w-full">
           <ApexCharts 
             options={{ 
@@ -97,13 +98,10 @@ const Graph3: React.FC = () => {
               yaxis: [{
                 title: { text: 'Approx. Wastage Percentage (%)' },
                 labels: { 
-                  formatter: (val) => val.toFixed(2),
+                  formatter: (val: number) => val.toFixed(2) + "%"
                 },
                 tooltip: {
                   enabled: true,
-                  y: {
-                    formatter: (val) => val.toFixed(2) + "%"
-                  }
                 },
                 axisBorder: { show: true },
                 axisTicks: { show: true },
@@ -111,8 +109,8 @@ const Graph3: React.FC = () => {
             }} 
             series={chartData} 
             type="area" 
-            height={400} 
-            width={400} 
+            height={250} 
+            width={350} 
           />
         </div>
         <div className="max-w-2xl w-full">
@@ -134,8 +132,8 @@ const Graph3: React.FC = () => {
             }} 
             series={chartData1} 
             type="line" 
-            height={400} 
-            width={400} 
+            height={250} 
+            width={350} 
           />
         </div>
       </div>

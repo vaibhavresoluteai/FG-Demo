@@ -1,22 +1,34 @@
 import React, { useEffect, useState, useRef } from 'react';
 import ApexCharts from 'react-apexcharts';
 
-const MAX_DATA_POINTS = 50; // Prevent excessive memory usage
+const MAX_DATA_POINTS = 50;
+type ChartDataType = {
+  name: string;
+  type: string;
+  data: { x: number; y: number }[]; // Define expected structure
+  color: string;
+};
+
+type AlertDataType = {
+  name: string;
+  data: { x: number; y: number }[]; // Define the expected structure of `data`
+  color: string;
+};
 
 const Graph2: React.FC = () => {
-  const [chartData, setChartData] = useState([
+  const [chartData, setChartData] = useState<ChartDataType[]>([
     { name: 'Total Detection Time', type: 'line', data: [], color: '#FF7F7F' }, // Light Red
     { name: 'Approx. Wastage Percentage', type: 'line', data: [], color: '#FF0000' }, // Dark Red
   ]);
 
-  const [alertData, setAlertData] = useState([
+  const [alertData, setAlertData] = useState<AlertDataType[]>([
     { name: 'Alert Status', data: [], color: '#FF0000' }
   ]);
 
   const [isConnected, setIsConnected] = useState(false);
   const ws = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
-  const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const connectWebSocket = () => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) return;
@@ -77,13 +89,13 @@ const Graph2: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-4 w-full flex flex-col lg:flex-row items-center justify-center min-h-screen gap-4">
+    <div className="p-4 w-full flex flex-col items-center justify-center min-h-screen gap-4">
       {/* Line Chart - Total Detection Time & Wastage Percentage */}
-      <div className="w-full lg:w-1/2 p-2">
+      <div className="w-full p-2">
         <h2 className="text-lg font-semibold mb-2 text-center">Live Data Monitoring</h2>
         <ApexCharts 
           options={{
-            chart: { height: 300 },
+            chart: { height: 200 },
             xaxis: { 
               type: 'datetime',
               labels: { formatter: (value) => new Date(value).toLocaleTimeString('en-US', { hour12: false }) } 
@@ -95,16 +107,16 @@ const Graph2: React.FC = () => {
           }} 
           series={chartData} 
           type="line" 
-          height={400} 
+          height={200} 
           width="100%" 
         />
       </div>
 
       {/* Alert Status Graph */}
-      <div className="w-full lg:w-1/2 p-2">
+      <div className="w-full p-2">
         <ApexCharts 
           options={{
-            chart: { type: 'line' },
+            chart: { type: 'line', height: 200 },
             xaxis: { 
               type: 'datetime', 
               labels: { formatter: (value) => new Date(value).toLocaleTimeString('en-US', { hour12: false }) } 
@@ -117,11 +129,12 @@ const Graph2: React.FC = () => {
           }} 
           series={alertData} 
           type="line" 
-          height={300} 
+          height={200} 
           width="100%" 
         />
       </div>
     </div>
+
   );
 };
 
