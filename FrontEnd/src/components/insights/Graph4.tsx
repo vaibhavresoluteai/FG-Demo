@@ -1,16 +1,13 @@
+import { ApexOptions } from 'apexcharts';
 import React, { useEffect, useState, useRef } from 'react';
 import ApexCharts from 'react-apexcharts';
-import { ApexOptions } from 'apexcharts';
-
-type ChartDataType = {
-  name: string;
-  data: { x: number; y: number }[]; // Define the expected structure of `data`
-};
+type CharData = {
+  name: string,
+  data: {x: number, y: number}[]
+}
 
 const Graph4: React.FC = () => {
-  const [chartData, setChartData] = useState<ChartDataType[]>([{ name: 'Total Crate Count', data: [] }]);
-  const [maxFrame, setMaxFrame] = useState<number>(500);
-  const lastFrame = useRef<number | null>(null);
+  const [chartData, setChartData] = useState<CharData[]>([{ name: 'Total Crate Count', data: [] }]);
   const lastCrateCount = useRef<number | null>(null);
   const ws = useRef<WebSocket | null>(null);
 
@@ -22,22 +19,20 @@ const Graph4: React.FC = () => {
   const connectWebSocket = () => {
     if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
       ws.current = new WebSocket('ws://localhost:8000/ws/live-data4/');
-      
+
       ws.current.onmessage = (event) => {
         const parsedData = JSON.parse(event.data);
-        const { Frame, "Total Crate Count": totalCrateCount } = parsedData.data;
-        
-        const frameNumber = parseInt(Frame);
+        const { "Total Crate Count": totalCrateCount } = parsedData.data;
         const crateCount = parseInt(totalCrateCount);
-        
-        setMaxFrame((prevMax) => Math.max(prevMax, Math.ceil(frameNumber / 100) * 100));
-        
+        const timestampValue = new Date();
+
         if (lastCrateCount.current !== crateCount) {
-          setChartData((prevData) => {
-            const newData = [...prevData[0].data, { x: frameNumber, y: crateCount }];
-            return [{ ...prevData[0], data: newData.slice(-50) }];
-          });
-          lastFrame.current = frameNumber;
+          setChartData((prevData) => [
+            {
+              ...prevData[0],
+              data: [...prevData[0].data, { x: timestampValue.getTime(), y: crateCount }], // Keep last 50 points
+            },
+          ]);
           lastCrateCount.current = crateCount;
         }
       };
@@ -56,16 +51,12 @@ const Graph4: React.FC = () => {
     ...commonOptions,
     chart: { ...commonOptions.chart, id: 'live-line-chart', type: 'area' },
     xaxis: {
-      type: 'numeric',
-      title: { text: 'Frame Number' },
-      tickAmount: Math.floor(maxFrame / 100),
-      min: 0,
-      max: maxFrame,
+      type: 'datetime',
+      title: { text: 'Time' },
+      tickAmount: 10,
       labels: {
-        formatter: (value: string) => {
-          const numValue = Number(value);
-          return numValue % 100 === 0 ? numValue.toString() : '';
-        },
+        formatter: (value: string) =>
+          new Date(Number(value)).toLocaleTimeString('en-US', { hour12: false }),
       },
     },
     yaxis: { title: { text: 'Crates Count' } },
@@ -78,13 +69,7 @@ const Graph4: React.FC = () => {
     <div className="p-4 w-full flex flex-col items-center justify-center min-h-screen">
       <h2 className="text-xl font-semibold mb-4 text-center">Live Crate Count Monitoring</h2>
       <div>
-        <ApexCharts
-         options={chartOptions} 
-         series={chartData} 
-         type="area" 
-         height={350} 
-         width={350} 
-        />
+        <ApexCharts options={chartOptions} series={chartData} type="area" height={350} width={350} />
       </div>
     </div>
   );

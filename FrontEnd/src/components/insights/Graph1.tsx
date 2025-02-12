@@ -2,11 +2,14 @@ import React, { useEffect, useState, useRef } from 'react';
 import ApexCharts from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
 
-const WebSocketGraph: React.FC = () => {
-  const [chartData, setChartData] = useState<{ name: string; data: { x: number; y: number }[] }[]>([{ name: 'Crates Count', data: [] }]);
-  const [barChartData, setBarChartData] = useState<{ name: string; data: { x: number; y: number }[] }[]>([{ name: 'Crates', data: [] }]);
-  const [maxFrame, setMaxFrame] = useState<number>(500); // Extend dynamically
+type CharDataType = {
+  name: string,
+  data: { x: number; y: number }[];
+};
 
+const Graph1: React.FC = () => {
+  const [chartData, setChartData] = useState<CharDataType[]>([{ name: 'Crates Count', data: [] }]);
+  const [barChartData, setBarChartData] = useState<CharDataType[]>([{ name: 'Crates', data: [] }]);
   const lastCrateCount = useRef<number | null>(null);
   const lastCrates = useRef<number | null>(null);
   const ws = useRef<WebSocket | null>(null);
@@ -22,9 +25,9 @@ const WebSocketGraph: React.FC = () => {
 
       ws.current.onmessage = (event) => {
         const parsedData = JSON.parse(event.data);
-        const { Frame, Crates, Crates_count } = parsedData.data;
-
-        const frameNumber = parseInt(Frame);
+        const { Crates, Crates_count } = parsedData.data;
+        
+        const timestampValue = new Date();
         const crateCount = parseInt(Crates_count);
         const cratesValue = parseInt(Crates);
 
@@ -33,7 +36,7 @@ const WebSocketGraph: React.FC = () => {
           setChartData((prevData) => [
             {
               ...prevData[0],
-              data: [...prevData[0].data, { x: frameNumber, y: crateCount }],
+              data: [...prevData[0].data, { x: timestampValue.getTime(), y: crateCount }],
             },
           ]);
           lastCrateCount.current = crateCount;
@@ -44,13 +47,11 @@ const WebSocketGraph: React.FC = () => {
           setBarChartData((prevData) => [
             {
               ...prevData[0],
-              data: [...prevData[0].data, { x: frameNumber, y: cratesValue }],
+              data: [...prevData[0].data, { x: timestampValue.getTime(), y: cratesValue }],
             },
           ]);
           lastCrates.current = cratesValue;
         }
-
-        setMaxFrame((prevMax) => Math.max(prevMax, Math.ceil(frameNumber / 100) * 100));
       };
     }
   };
@@ -63,10 +64,18 @@ const WebSocketGraph: React.FC = () => {
     tooltip: { enabled: true },
   };
 
+  const xaxisConfig: ApexXAxis = {
+    type: 'datetime',
+    tickAmount: 5,
+    labels: { 
+      formatter: (value: string) => new Date(Number(value)).toLocaleTimeString('en-US', { hour12: false })
+    }
+  };
+
   const lineChartOptions: ApexOptions = {
     ...commonOptions,
-    chart: { ...commonOptions.chart, id: 'live-line-chart', type: "area" },
-    xaxis: { type: 'numeric', title: { text: 'Frame Number' } },
+    chart: { ...commonOptions.chart, id: 'live-line-chart', type: 'area' },
+    xaxis: xaxisConfig,
     yaxis: { title: { text: 'Crates Count' } },
     stroke: { curve: 'smooth' },
     markers: { size: 4 },
@@ -75,27 +84,15 @@ const WebSocketGraph: React.FC = () => {
 
   const allFramesChartOptions: ApexOptions = {
     ...commonOptions,
-    chart: { ...commonOptions.chart, id: 'all-frames-chart', type: "bar" },
-    xaxis: {
-      type: 'numeric',
-      title: { text: 'Frame Number' },
-      tickAmount: Math.floor(maxFrame / 100),
-      min: 0,
-      max: maxFrame,
-      labels: {
-        formatter: (value: string) => {
-          const numValue = Number(value);
-          return numValue % 100 === 0 ? numValue.toString() : "";
-        }, // ✅ Show labels at 0,100,200...
-      },
-    },
+    chart: { ...commonOptions.chart, id: 'all-frames-chart', type: 'bar' },
+    xaxis: xaxisConfig,
     yaxis: { title: { text: 'Crates' } },
     colors: ['#FF0000'],
     plotOptions: { bar: { columnWidth: '20px' } },
     dataLabels: { enabled: false },
     tooltip: {
       enabled: true,
-      x: { formatter: (value: number) => `Frame: ${value}` }, // ✅ Show frame number in tooltip
+      x: { formatter: (value: number) => `Time: ${new Date(value).toLocaleTimeString('en-US', { hour12: false })}` },
     },
   };
 
@@ -114,8 +111,4 @@ const WebSocketGraph: React.FC = () => {
   );
 };
 
-export default WebSocketGraph;
-
-
-
- 
+export default Graph1;
