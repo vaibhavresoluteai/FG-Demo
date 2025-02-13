@@ -3,6 +3,8 @@ import ApexCharts from 'react-apexcharts';
 import { setAlertStatus } from '../../store/api/alertStatus';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store/middleware';
+import { setMilkWastageResponse } from '../../store/api/responseReducer';
+import { motion } from "framer-motion";
 
 const Graph3: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -52,14 +54,22 @@ const Graph3: React.FC = () => {
           'Frame': frame,
           Timestamp,
           'Approx. Wastage Percentage': wastagePercentage,
-          'Alert Status': alert
+          'Alert Status': alert,
+          'Detection Start Time': startTime
         } = parsedData.data;
+        
 
         if(parsedData.data["Alert Status"] === 'True'){
           dispatch(setAlertStatus(true));
         }else{
           dispatch(setAlertStatus(false));
         }
+        const tempData = {
+          whitePercentage: wastagePercentage,
+          detectionStartTime: startTime
+        }
+        
+        dispatch(setMilkWastageResponse(tempData));
 
         const today = new Date();
         const timestampMillis = new Date(`${today.toISOString().split('T')[0]}T${Timestamp}`).getTime();
@@ -97,6 +107,7 @@ const Graph3: React.FC = () => {
 
   return (
     <div className="p-4 w-full flex flex-col items-center justify-center min-h-screen">
+      
       <h2 className="text-xl font-semibold mb-4 text-center">Live Data Monitoring</h2>
       
       <div className="w-3/4 flex flex-col justify-center items-center space-x-8">
@@ -106,7 +117,7 @@ const Graph3: React.FC = () => {
               chart: { type: 'area' },
               xaxis: { title: { text: 'Frame' } },
               yaxis: [{
-                title: { text: 'Approx. Wastage Percentage (%)' },
+                title: { text: 'Wastage Percentage (%)' },
                 labels: { 
                   formatter: (val: number) => val.toFixed(2) + "%"
                 },

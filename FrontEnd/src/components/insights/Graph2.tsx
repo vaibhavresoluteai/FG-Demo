@@ -3,6 +3,7 @@ import ApexCharts from 'react-apexcharts';
 import { setAlertStatus } from '../../store/api/alertStatus';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store/middleware';
+import { setMilkSpillageResponse } from '../../store/api/responseReducer';
 
 const MAX_DATA_POINTS = 50;
 type ChartDataType = {
@@ -57,13 +58,20 @@ const Graph2: React.FC = () => {
         const parsedData = JSON.parse(event.data);
         if (!parsedData?.data) return console.error("Invalid data format:", parsedData);
 
-        const { Timestamp, 'Approx. Wastage Percentage': wastagePercentage, 'Total Detection Time': totalDetectionTime, 'Alert Status': alert } = parsedData.data;
+        const { Timestamp, 'Approx. Wastage Percentage': wastagePercentage, 'Total Detection Time': totalDetectionTime, 'Alert Status': alert, 'Detection Start Time': startTime } = parsedData.data;
+        
 
         if(parsedData.data["Alert Status"] === 'True'){
           dispatch(setAlertStatus(true));
         }else{
           dispatch(setAlertStatus(false));
         }
+        const tempData = {
+          whitePercentage: wastagePercentage,
+          detectionStartTime: startTime,
+          totalDetectionTime: totalDetectionTime,
+        }
+        dispatch(setMilkSpillageResponse(tempData));
 
         const today = new Date();
         const timestampMillis = new Date(`${today.toISOString().split('T')[0]}T${Timestamp}`).getTime();
@@ -99,7 +107,7 @@ const Graph2: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-4 w-full flex flex-col items-center justify-center min-h-screen gap-4">
+    <div className="p-4 w-full flex flex-col items-center justify-center min-h-screen gap-2">
       {/* Line Chart - Total Detection Time & Wastage Percentage */}
       <div className="w-full p-2">
         <h2 className="text-lg font-semibold mb-2 text-center">Live Data Monitoring</h2>
@@ -112,7 +120,7 @@ const Graph2: React.FC = () => {
             },
             yaxis: [
               { title: { text: 'Total time Unattended (s)' }, labels: { formatter: val => val.toFixed(2) } },
-              { opposite: true, title: { text: 'Approx. Wastage % (line)' }, labels: { formatter: val => val.toFixed(2) } }
+              { opposite: true, title: { text: 'Milk Wastage % (line)' }, labels: { formatter: val => val.toFixed(2) } }
             ]
           }} 
           series={chartData} 

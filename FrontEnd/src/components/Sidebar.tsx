@@ -14,13 +14,13 @@ const Sidebar = () => {
   const location = useLocation();
 
   const menuItems = [
-    { icon: MonitorCog, label: "Configuration", path: "/" },
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard"},
+    { icon: MonitorCog, label: "Configuration", path: "/" },
     { icon: Camera, label: "Cameras", path: "/cameras" },
     { icon: MonitorPlay, label: "Detection Models", path: "/models" },
     { icon: Settings, label: "Processing Rules", path: "/rules" },
     // { icon: Database, label: "Database", path: "/database" },
-    { icon: BarChart3, label: "Insights", path: "/insights" },
+    // { icon: BarChart3, label: "Insights", path: "/insights" },
   ];
 
   return (

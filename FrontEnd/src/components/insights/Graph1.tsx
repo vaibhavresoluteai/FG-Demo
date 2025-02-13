@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import ApexCharts from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../store/middleware';
+import { setCrateCountResponse } from '../../store/api/responseReducer';
 
 type CharDataType = {
   name: string,
@@ -13,6 +16,7 @@ const Graph1: React.FC = () => {
   const lastCrateCount = useRef<number | null>(null);
   const lastCrates = useRef<number | null>(null);
   const ws = useRef<WebSocket | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     connectWebSocket();
@@ -26,6 +30,11 @@ const Graph1: React.FC = () => {
       ws.current.onmessage = (event) => {
         const parsedData = JSON.parse(event.data);
         const { Crates, Crates_count } = parsedData.data;
+        const tempData = {
+          roiBoxCount: Crates,
+          totalCrates: Crates_count
+        };
+        dispatch(setCrateCountResponse(tempData));
         
         const timestampValue = new Date();
         const crateCount = parseInt(Crates_count);

@@ -3,6 +3,7 @@ import cv2
 import os
 import datetime
 import csv
+stop_processing = False  
 
 def detect_box(results):
     boxes = results[0].boxes
@@ -24,6 +25,8 @@ def detect_box(results):
     return rois
 
 def process_video1(input_path,frame_interval: int = 5): 
+    global stop_processing  
+    stop_processing = False
     csv_file = "crate_count.csv"
     if os.path.exists(csv_file):
         os.remove(csv_file)
@@ -58,6 +61,9 @@ def process_video1(input_path,frame_interval: int = 5):
     frame_number = 0  
 
     while cap.isOpened():
+        if stop_processing:
+            print("Stopping YOLO process...")
+            break
         ret, frame = cap.read()
         if not ret:
             break
@@ -108,4 +114,9 @@ def process_video1(input_path,frame_interval: int = 5):
     cv2.destroyAllWindows()
 
     return roi_box_count, roi_box_count * 10
+
+# Call this function from another thread to stop YOLO
+def stop_yolo1():
+    global stop_processing
+    stop_processing = True
 

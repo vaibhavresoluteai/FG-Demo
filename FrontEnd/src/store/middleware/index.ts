@@ -9,6 +9,7 @@ import responseBuilder from "../api/responseReducer";
 import ruleSelecter from "../api/selectedRuleSlice"
 import configureData from "../api/configurationData"
 import alertStatus from '../api/alertStatus'
+import { stopProcessingApi } from "../api/stopProcessingApi";
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     [outputConfigurationsApi.reducerPath]: outputConfigurationsApi.reducer,
     [areaCoordinatesApi.reducerPath]: areaCoordinatesApi.reducer,
     [crateVideoProcessingApi.reducerPath]: crateVideoProcessingApi.reducer,
+    [stopProcessingApi.reducerPath]: stopProcessingApi.reducer,
     response: responseBuilder,
     rule: ruleSelecter,
     configuration: configureData,
@@ -30,7 +32,8 @@ export const store = configureStore({
       processingRulesApi.middleware,
       outputConfigurationsApi.middleware,
       areaCoordinatesApi.middleware,
-      crateVideoProcessingApi.middleware
+      crateVideoProcessingApi.middleware,
+      stopProcessingApi.middleware
     ),
 });
 

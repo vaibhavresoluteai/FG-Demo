@@ -43,7 +43,6 @@ const Configuration = () => {
     useCreateMediaProcessingMutation();
   
   const [createCrateMutation, { isLoading: createCrateLoading }] = useCreateCrateVideoProcessingMutation();
-  
   const [updateMutation, { isLoading: updateLoading }] =
     useUpdateOutputConfigurationsMutation();
   const { data: modelRows = [], isLoading: modelLoading } =
@@ -100,14 +99,14 @@ const Configuration = () => {
       dispatch(setFileName(generatedFileName));
     }
   };
+  React.useEffect(() => {
+    fetch("http://localhost:8000/clear-frames", { method: "POST" });
+  }, []);
 
   const handleSubmit = () => {
     dispatch(resetResponses());
     const formData = new FormData();
     if (selectedFile) formData.append("file", selectedFile);
-    
-    // Assuming the user selects a single rule, you can append the selected rule
-    
     let selectedRule = Object.keys(params).find(key => params[key]);
     if (selectedRule) {
       dispatch(setSelectedRule(selectedRule));
@@ -126,14 +125,14 @@ const Configuration = () => {
           dispatch(setCrateCountResponse(response));
         }else if(selectedRule === "Milk Spillage"){
           const response = {
-            whitePercentage: res.data?.["white_percentage"].toFixed(6)*100,
+            whitePercentage: res.data?.["white_percentage"],
             detectionStartTime: res.data?.["detection_start_time"],
             totalDetectionTime: res.data?.["total_detection_time"]
           }
           dispatch(setMilkSpillageResponse(response));
         }else if(selectedRule === "Milk Wastage"){
           const response = {
-            whitePercentage: res.data?.["white_percentage"].toFixed(6)*100,
+            whitePercentage: res.data?.["white_percentage"],
             detectionStartTime: res.data?.["detection_start_time"],
           }
           dispatch(setMilkWastageResponse(response));

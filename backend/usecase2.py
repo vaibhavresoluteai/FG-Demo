@@ -3,8 +3,11 @@ import datetime
 import cv2
 import os
 import csv
+stop_processing = False
 
 def process_video2(input_path,frame_interval : int =5): 
+    global stop_processing  
+    stop_processing = False
     csv_file = "milk_spillage.csv"
 
     if os.path.exists(csv_file):
@@ -50,6 +53,9 @@ def process_video2(input_path,frame_interval : int =5):
 
         try:
             while True:
+                if stop_processing:
+                    print("Stopping YOLO process...")
+                    break
                 ret, frame = cap.read()
                 if not ret:
                     print("End of video or failed to read frame.")
@@ -111,7 +117,7 @@ def process_video2(input_path,frame_interval : int =5):
                 # **Live Saving Data to CSV**
                 with open(csv_file, "a", newline="") as f:
                     writer = csv.writer(f)
-                    writer.writerow([frame_number, timestamp, white_percentage, detection_start_time_str, total_detection_time, alert_status])
+                    writer.writerow([frame_number, timestamp, round(white_percentage*100, 2), detection_start_time_str, total_detection_time, alert_status])
                     f.flush()  # Ensure data is written immediately
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -122,4 +128,10 @@ def process_video2(input_path,frame_interval : int =5):
             out.release()
             cv2.destroyAllWindows()
 
-        return white_percentage, detection_start_time_str, total_detection_time
+        return round(white_percentage*100, 2), detection_start_time_str, total_detection_time
+    
+
+# Call this function from another thread to stop YOLO
+def stop_yolo2():
+    global stop_processing
+    stop_processing = True

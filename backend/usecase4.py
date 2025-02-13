@@ -5,6 +5,8 @@ import matplotlib.path as mplPath
 import os
 import csv
 
+stop_processing = False
+
 def detect_box(results):
     boxes = results[0].boxes
     bboxes = boxes.xyxy
@@ -25,6 +27,8 @@ def detect_box(results):
     return rois
 
 def process_video4(input_path,frame_interval : int =5):
+    global stop_processing  
+    stop_processing = False
     csv_file = "total_crates_count.csv"
 
     # Initialize CSV with headers if it doesn't exist
@@ -61,6 +65,9 @@ def process_video4(input_path,frame_interval : int =5):
     frame_number = 0
 
     while cap.isOpened():
+        if stop_processing:
+                print("Stopping YOLO process...")
+                break
         ret, frame = cap.read()
         if not ret:
             break
@@ -111,3 +118,7 @@ def process_video4(input_path,frame_interval : int =5):
     return box_count
 
 
+# Call this function from another thread to stop YOLO
+def stop_yolo4():
+    global stop_processing
+    stop_processing = True

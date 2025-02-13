@@ -1,9 +1,16 @@
 import UserNav from "./UserNav";
+import React from "react";
 import { MonitorPlay } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import { RootState } from "../store/middleware";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const location = useLocation();
+  const selectedRule = useSelector((state: RootState) => state.rule.rule);
+  React.useEffect(() => {
+    console.log(selectedRule)
+  }, [selectedRule])
 
   const pageNameItems = [
     { pageName: "Configuration", path: "/" },
@@ -40,7 +47,7 @@ const Navbar = () => {
 
         <div className="flex justify-center gap-1 lg:gap-2">
           <MonitorPlay className="hidden lg:block w-8 h-8 text-red-500" />
-          <span className="text-[16px] lg:text-[24px] font-bold">FaceGenie - Object Detection and Count Demo</span>
+          <span className="text-[16px] lg:text-[24px] font-bold">FaceGenie {selectedRule ? `- ${selectedRule}` : ``}</span>
         </div>
 
         {/* <div className="text-[30px] font-bold">Cam AI</div> */}
