@@ -61,10 +61,10 @@ models = [
     },
     {
         "id": "3",
-        "name": "None",
-        # "model_info": "Model 3 info",
-        # "accuracy": "93.0%",
-        # "type": "Model 3 type",
+        "name": "Spillage Detection",
+        "model_info": "General Spillage Detection Model",
+        "accuracy": "93.0%",
+        "type": "Milk",
         "active": True
     },
 ]

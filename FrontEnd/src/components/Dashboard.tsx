@@ -12,6 +12,7 @@ import {motion} from "framer-motion"
 
 function Dashboard() {
   const selectedRule = useSelector((state: RootState) => state.rule.rule);
+  const isVideoProcessed = useSelector((state: RootState) => state.configuration.isVideoProcessed);
   const crateCount = useSelector((state: RootState) => state.response.crateCountResponse);
   const milkSpillage = useSelector((state: RootState) => state.response.milkSpillageResponse);
   const milkWastage = useSelector((state: RootState) => state.response.milkWastageResponse);
@@ -26,7 +27,7 @@ function Dashboard() {
     } catch (err) {
       console.log("Error stopping processing...", err);
     }
-  }
+  };
   
   return (
     <div className="p-6">
@@ -38,13 +39,18 @@ function Dashboard() {
             <BarChart className="w-5 h-5 text-blue-500" />
             <h2 className="text-lg font-semibold">Analytics Preview</h2>
           </div>
-          <div
-            onClick={!isLoading ? handleStopProcessing : undefined}
-            className={`cursor-pointer px-4 py-2 rounded-md hover:underline 
-              ${isLoading ? "bg-gray-300 text-gray-500 pointer-events-none" : "bg-red-200 text-red-500"}`}
-          >
-            {isLoading ? "Stopping..." : "Stop Processing"}
-          </div>
+          {isVideoProcessed ? (
+            <div className="bg-gray-300 text-gray-500 px-4 py-2 rounded-md">Processing not started</div>
+          ) : (
+            <div
+              onClick={!isLoading ? handleStopProcessing : undefined}
+              className={`cursor-pointer px-4 py-2 rounded-md hover:underline 
+                ${isLoading ? "bg-gray-300 text-gray-500 pointer-events-none" : "bg-red-200 text-red-500"}`}
+            >
+              {isLoading ? "Stopping..." : "Stop Processing"}
+            </div>
+          )}
+
         </div>
 
 
@@ -69,7 +75,7 @@ function Dashboard() {
                 exit={{ scale: 0, opacity: 0 }}
                 className="flex items-center justify-center text-center p-2 font-semibold text-white bg-red-500 rounded-lg shadow-lg"
               >
-                🚨 Milk Spillage Alert! 🚨
+                🔔 Milk Spillage Alert! 🔔
               </motion.div>
             )}
           </div>
@@ -85,9 +91,9 @@ function Dashboard() {
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
-                className="lex items-center justify-center text-center p-2 text-sm font-semibold text-white bg-red-500 rounded-lg shadow-lg"
+                className="flex items-center justify-center text-center p-2 text-lg font-semibold text-white bg-red-500 rounded-lg shadow-lg"
               >
-                🚨 Milk Wastage Alert!🚨
+                🔔 Milk Wastage Alert!🔔
               </motion.div>
             )}
           </div>

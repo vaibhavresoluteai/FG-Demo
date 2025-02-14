@@ -69,12 +69,12 @@ const ModelSelection = () => {
               )}
             </div>
             <div className="mt-4">
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">Accuracy:</span>
                 <span className="text-sm font-semibold">
                   {model.accuracy + " accuracy"}
                 </span>
-              </div>
+              </div> */}
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-sm text-gray-600">Type:</span>
                 <span className="text-sm font-semibold capitalize">

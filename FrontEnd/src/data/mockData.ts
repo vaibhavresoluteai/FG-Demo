@@ -3,16 +3,16 @@ import { Camera, DetectionModel, ProcessingRule, Detection } from '../types';
 export const mockCameras: Camera[] = [
   {
     id: '1',
-    name: 'Front Entrance',
+    name: 'Loading Section',
     url: 'rtsp://camera1.stream',
-    location: 'Main Building',
+    location: 'Entrance',
     status: 'online',
   },
   {
     id: '2',
-    name: 'Parking Lot',
+    name: 'Cold Room',
     url: 'rtsp://camera2.stream',
-    location: 'Exterior',
+    location: 'Main Building',
     status: 'online',
   },
 ];

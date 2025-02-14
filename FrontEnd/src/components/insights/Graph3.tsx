@@ -74,7 +74,7 @@ const Graph3: React.FC = () => {
         const today = new Date();
         const timestampMillis = new Date(`${today.toISOString().split('T')[0]}T${Timestamp}`).getTime();
 
-        const wastageValue = (parseFloat(wastagePercentage) || 0) * 100;
+        const wastageValue = (parseFloat(wastagePercentage) || 0);
         const formattedWastage = parseFloat(wastageValue.toFixed(2));
         const alertValue = alert === "True" ? 1 : 0;
 
